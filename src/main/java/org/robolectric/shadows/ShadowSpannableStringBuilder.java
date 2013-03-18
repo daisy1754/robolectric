@@ -2,6 +2,7 @@ package org.robolectric.shadows;
 
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
+import java.lang.reflect.Array;
 import org.robolectric.internal.Implementation;
 import org.robolectric.internal.Implements;
 import org.robolectric.internal.RealObject;
@@ -88,6 +89,11 @@ public class ShadowSpannableStringBuilder implements CharSequence {
         for (int i = start; i <= end; i++) {
             spans.add(i, what);
         }
+    }
+
+    @Implementation
+    public <T> T[] getSpans(int queryStart, int queryEnd, Class<T> kind) {
+        return (T[]) Array.newInstance(kind, 0);
     }
 
     public Object getSpanAt(int position) {

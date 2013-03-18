@@ -1,7 +1,9 @@
 package org.robolectric.shadows;
 
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import org.robolectric.Robolectric;
 import org.robolectric.internal.Implementation;
@@ -85,6 +87,19 @@ public class ShadowTypedArray implements UsesResources {
     }
 
     @Implementation
+    public int getColor(int index, int defValue) {
+        ResName resName = getResName(index);
+        String value = values.getAttributeValue(resName.namespace, resName.name);
+        return attributeValue;
+    }
+
+    @Implementation
+    public ColorStateList getColorStateList(int index) {
+        ResName resName = getResName(index);
+        return values.getAttributeFloatValue(resName.namespace, resName.name, defValue);
+    }
+
+    @Implementation
     public int getInteger(int index, int defValue) {
         ResName resName = getResName(index);
         return values.getAttributeIntValue(resName.namespace, resName.name, defValue);
@@ -96,9 +111,26 @@ public class ShadowTypedArray implements UsesResources {
     }
 
     @Implementation
+    public int getDimensionPixelOffset(int index, int defValue) {
+        return defValue;
+    }
+
+    @Implementation
+    public int getDimensionPixelSize(int index, int defValue) {
+        return defValue;
+    }
+
+    @Implementation
     public int getResourceId(int index, int defValue) {
         ResName resName = getResName(index);
         return values.getAttributeResourceValue(resName.namespace, resName.name, defValue);
+    }
+
+    @Implementation
+    public Drawable getDrawable(int index) {
+        ResName resName = getResName(index);
+        int drawableId = values.getAttributeResourceValue(resName.namespace, resName.name, -1);
+        return drawableId == -1 ? null : resources.getDrawable(drawableId);
     }
 
     @Implementation
@@ -111,6 +143,10 @@ public class ShadowTypedArray implements UsesResources {
     @Implementation
     public boolean getValue(int index, android.util.TypedValue outValue) {
         return false;
+    }
+
+    @Implementation
+    public void recycle() {
     }
 
     @Implementation

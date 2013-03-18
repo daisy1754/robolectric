@@ -18,6 +18,7 @@ import org.robolectric.bytecode.testing.AClassWithMethodReturningBoolean;
 import org.robolectric.bytecode.testing.AClassWithMethodReturningDouble;
 import org.robolectric.bytecode.testing.AClassWithMethodReturningInteger;
 import org.robolectric.bytecode.testing.AClassWithNativeMethod;
+import org.robolectric.bytecode.testing.AClassWithNativeMethodReturningPrimitive;
 import org.robolectric.bytecode.testing.AClassWithNoDefaultConstructor;
 import org.robolectric.bytecode.testing.AClassWithStaticMethod;
 import org.robolectric.bytecode.testing.AClassWithoutEqualsHashCodeToString;
@@ -46,6 +47,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.staticField;
 import static org.junit.Assert.*;
 import static org.robolectric.Robolectric.directlyOn;
+import static org.robolectric.Robolectric.shadowOf_;
 
 abstract public class InstrumentingClassLoaderTestBase { // don't end in "Test" or ant will try to run this as a test
 
@@ -62,12 +64,13 @@ abstract public class InstrumentingClassLoaderTestBase { // don't end in "Test" 
     }
 
     @Test
-    public void becauseShadowsMustBeCreatedDuringInstantiation_shouldAddDefaultConstructorIfMissingWhichCallsShadow() throws Exception {
+    public void forClassesWithNoDefaultConstructor_shouldCreateOneButItShouldNotCallShadow() throws Exception {
         Constructor<?> defaultCtor = loadClass(AClassWithNoDefaultConstructor.class).getConstructor();
         assertTrue(Modifier.isPublic(defaultCtor.getModifiers()));
         defaultCtor.setAccessible(true);
-        defaultCtor.newInstance();
-        transcript.assertEventsSoFar("methodInvoked: AClassWithNoDefaultConstructor.__constructor__()");
+        Object instance = defaultCtor.newInstance();
+        assertThat(shadowOf_(instance)).isNotNull();
+        transcript.assertNoEventsSoFar();
     }
 
     @Test
@@ -220,6 +223,26 @@ abstract public class InstrumentingClassLoaderTestBase { // don't end in "Test" 
                 "methodInvoked: AClassWithNativeMethod.nativeMethod(java.lang.String value1, int 123)");
     }
 
+    @Test
+    public void directlyCallingNativeMethodShouldBeNoOp() throws Exception {
+        Class<?> exampleClass = loadClass(AClassWithNativeMethod.class);
+        Object exampleInstance = exampleClass.newInstance();
+        Method directMethod = findDirectMethod(exampleClass, "nativeMethod", String.class, int.class);
+        assertThat(Modifier.isNative(directMethod.getModifiers())).isFalse();
+
+        assertThat(directMethod.invoke(exampleInstance, "", 1)).isNull();
+    }
+
+    @Test
+    public void directlyCallingNativeMethodReturningPrimitiveShouldBeNoOp() throws Exception {
+        Class<?> exampleClass = loadClass(AClassWithNativeMethodReturningPrimitive.class);
+        Object exampleInstance = exampleClass.newInstance();
+        Method directMethod = findDirectMethod(exampleClass, "nativeMethod");
+        assertThat(Modifier.isNative(directMethod.getModifiers())).isFalse();
+
+        assertThat(directMethod.invoke(exampleInstance)).isEqualTo(0);
+    }
+    
     @Test
     public void shouldHandleMethodsReturningBoolean() throws Exception {
         Class<?> exampleClass = loadClass(AClassWithMethodReturningBoolean.class);
@@ -486,7 +509,7 @@ abstract public class InstrumentingClassLoaderTestBase { // don't end in "Test" 
         }
 
         @Override public Object initializing(Object instance) {
-            return null;
+            return "a shadow!";
         }
 
         public Object methodInvoked(Class clazz, String methodName, Object instance, String[] paramTypes, Object[] params) throws Throwable {

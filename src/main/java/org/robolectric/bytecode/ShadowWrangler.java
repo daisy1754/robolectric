@@ -33,7 +33,7 @@ public class ShadowWrangler implements ClassHandler {
         }
     };
 
-    public boolean debug = false;
+    public boolean debug = true;
 
     private final ShadowMap shadowMap;
     private final Map<Class, MetaShadow> metaShadowMap = new HashMap<Class, MetaShadow>();
@@ -139,7 +139,8 @@ public class ShadowWrangler implements ClassHandler {
     }
 
     private boolean strict(InvocationProfile invocationProfile) {
-        return invocationProfile.clazz.getName().startsWith("android.support") || invocationProfile.isSpecial();
+        return true;
+//        return invocationProfile.clazz.getName().startsWith("android.support") || invocationProfile.isSpecial();
     }
 
     private Class<?> getShadowedClass(Method shadowMethod) {
@@ -386,7 +387,7 @@ public class ShadowWrangler implements ClassHandler {
                 return shadowMethod.invoke(shadow, params);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("attempted to invoke " + shadowMethod
-                        + (shadow == null ? "" : " on instance of " + shadow.getClass()));
+                        + (shadow == null ? "" : " on instance of " + shadow.getClass() + ", but " + shadow.getClass().getSimpleName() + " doesn't extend " + shadowMethod.getDeclaringClass().getSimpleName()));
             } catch (InvocationTargetException e) {
                 throw e.getCause();
             }

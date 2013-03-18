@@ -111,6 +111,12 @@ public class ShadowResources {
     private ResName getResName(int id) {
         ResName resName = resourceLoader.getResourceIndex().getResName(id);
         if (resName == null) {
+            // todo: android.internal!
+            if ((id & 0xfff00000) == 0x01000000) {
+                new Resources.NotFoundException("WARN: couldn't find a name for resource id " + id).printStackTrace();
+                return new ResName("android.internal", "unknown", id + "");
+            }
+
             throw new Resources.NotFoundException("couldn't find a name for resource id " + id);
         }
         return resName;

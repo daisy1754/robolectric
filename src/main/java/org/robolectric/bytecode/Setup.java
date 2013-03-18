@@ -86,10 +86,10 @@ public class Setup {
             return false;
         }
 
-        if (isFromAndroidSdk(classInfo)) {
-            return true;
-        }
-
+//        String name = classInfo.getName();
+//        if (name.startsWith("android.text.") && name.contains("Span")) return false;
+//        if (name.equals(TextUtils.class.getName())) return false;
+        if (isFromAndroidSdk(classInfo)) return true;
         return false;
     }
 
@@ -145,7 +145,8 @@ public class Setup {
                 new MethodRef("android.os.StrictMode", "trackActivity"),
                 new MethodRef("com.android.i18n.phonenumbers.Phonenumber$PhoneNumber", "*"),
                 new MethodRef("com.android.i18n.phonenumbers.PhoneNumberUtil", "*"),
-                new MethodRef("dalvik.system.CloseGuard", "get")
+                new MethodRef("dalvik.system.CloseGuard", "get"),
+                new MethodRef("android.util.LocaleUtil", "getLayoutDirectionFromLocale")
         )));
     }
 

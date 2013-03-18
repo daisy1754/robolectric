@@ -1,6 +1,5 @@
 package org.robolectric.bytecode;
 
-import org.fest.reflect.core.Reflection;
 import org.fest.reflect.method.Invoker;
 
 import java.lang.reflect.Constructor;

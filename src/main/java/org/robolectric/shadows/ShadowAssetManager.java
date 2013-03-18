@@ -41,4 +41,15 @@ public final class ShadowAssetManager {
         return new FileInputStream(new File(appManifest.getAssetsDirectory(), fileName));
     }
 
+    @Implementation
+    public void setConfiguration(int mcc, int mnc, String locale,
+                                              int orientation, int touchscreen, int density, int keyboard,
+                                              int keyboardHidden, int navigation, int screenWidth, int screenHeight,
+                                              int smallestScreenWidthDp, int screenWidthDp, int screenHeightDp,
+                                              int screenLayout, int uiMode, int majorVersion) {
+    }
+
+    @Implementation
+    public void ensureStringBlocks() {
+    }
 }
